@@ -168,6 +168,7 @@ public class AuthController {
         return new ResponseEntity<JwtResponce>(jwtResponse,HttpStatus.OK);
     }
 	
+    //what is this used for
 	private Authentication authenticate(String username, String password) {
 		System.out.println("sign in userDetails - "+password);
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);

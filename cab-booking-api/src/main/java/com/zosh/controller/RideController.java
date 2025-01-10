@@ -41,13 +41,16 @@ public class RideController {
 	private DriverService driverService;
 	
 	@PostMapping("/request")
-	public ResponseEntity<RideDTO> userRequestRideHandler(@RequestBody RideRequest rideRequest, @RequestHeader("Authorization") String jwt) throws UserException, DriverException{
+	public ResponseEntity<RideDTO> userRequestRideHandler(@RequestBody RideRequest rideRequest, @RequestHeader("Authorization") String jwt) throws Exception{
 		
 		User user =userService.findUserByToken(jwt);
+		System.out.println("user id-------------------------" + user.getId());
 		
 		Ride ride=rideService.requestRide(rideRequest, user);
+		System.out.println("error---------------------------1----");
 		
 		RideDTO rideDto=DtoMapper.toRideDto(ride);
+		System.out.println("error---------------------------2----");
 		
 		return new ResponseEntity<>(rideDto,HttpStatus.ACCEPTED);
 	}
@@ -97,15 +100,17 @@ public class RideController {
 	
 	@GetMapping("/{rideId}")
 	public ResponseEntity<RideDTO> findRideByIdHandler(@PathVariable Integer rideId, @RequestHeader("Authorization") String jwt) throws UserException, RideException{
-		
+		System.out.println("error--------------------------A-----------------------");
 		User user =userService.findUserByToken(jwt);
-	
+		if(user==null) {
+			throw new UserException("User Not Found");
+		}
+		System.out.println("user email --------------" + user.getEmail());
+		System.out.println("error----------------------B--------------------");	
 		Ride ride =rideService.findRideById(rideId);
-
-		
+		System.out.println("error----------------------C--------------------");
 		RideDTO rideDto=DtoMapper.toRideDto(ride);
-		
-		
+		System.out.println("error----------------------D--------------------");
 		return new ResponseEntity<RideDTO>(rideDto,HttpStatus.ACCEPTED);
 	}
 

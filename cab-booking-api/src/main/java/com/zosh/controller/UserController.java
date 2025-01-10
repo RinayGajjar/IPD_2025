@@ -26,7 +26,7 @@ public class UserController {
 	private UserService userService;
 	
 	@GetMapping("/{userId}")
-	public ResponseEntity<User> findUserByIdHandler(@PathVariable Integer userId)throws UserException{
+	public ResponseEntity<User> findUserByIdHandler(@PathVariable Long userId)throws UserException{
 		System.out.println("find by user id");
 		User createdUser = userService.findUserById(userId);
 		

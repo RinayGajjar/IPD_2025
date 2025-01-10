@@ -47,8 +47,16 @@ public class DriverServiceImplementation implements DriverService {
 	private RideRepository rideRepository;
 
 	@Override
-	public List<Driver> getAvailableDrivers(double pickupLatitude, double picupLongitude, double radius, Ride ride) {
+	public Driver createDriverFromRequest(DriversSignupRequest request) {
+		// TODO Auto-generated method stub
+		Driver driver=new Driver();
+		driver.setDriverArea(request.getDriverArea());
+		return driver;
+	}
+	@Override
+	public List<Driver> getAvailableDrivers(String ride_pickupArea, double radius, Ride ride) {
 		List<Driver> allDrivers=driverRepository.findAll();
+		
 		
 		List<Driver> availableDriver=new ArrayList<>();
 		
@@ -65,35 +73,33 @@ public class DriverServiceImplementation implements DriverService {
 				continue;
 			}
 
-			double driverLatitude=driver.getLatitude();
-			double driverLongitude=driver.getLongitude();
 			
 			
 			
-			double distence=distenceCalculator.calculateDistance(driverLatitude,driverLongitude, pickupLatitude, picupLongitude);
-			
-//			if(distence<=radius) {
+			double distence=distenceCalculator.calculateDistance(ride_pickupArea,driver.getDriverArea());
+			System.out.println("ride is -------" + ride_pickupArea + "driver is --------------" + driver.getDriverArea());
+			//the main problem is that if the distance of driver is >radius(5) then available driver is not added because of which it causes null problem 
+			 if(distence<=radius) {
 				availableDriver.add(driver);
-//			}
+			 }
 		}
 		
 		return availableDriver;
 	}
 
 	@Override
-	public Driver findNearestDriver(List<Driver> availableDrivers, double picupLatitude, double picupLongitude) {
-		
+	public Driver findNearestDriver(List<Driver> availableDrivers, String ride_pickupArea) {
+		// Ride ride=new Ride();
 		double min=Double.MAX_VALUE;;
 		Driver nearestDriver = null;
-		
+		System.out.println("avaialable drivers are "  + availableDrivers);
 //		List<Driver> drivers=new ArrayList<>();
 //		double minAuto
 		
 		for(Driver driver : availableDrivers) {
-			double driverLatitude=driver.getLatitude();
-			double driverLongitude=driver.getLongitude();
-			
-			double distence=distenceCalculator.calculateDistance(picupLatitude, picupLongitude, driverLatitude,driverLongitude);
+			System.out.println("ride pickup area is  ------------" +ride_pickupArea + "driver area is ---------------" + driver.getDriverArea());
+			double distence=distenceCalculator.calculateDistance(ride_pickupArea,driver.getDriverArea());
+			System.out.println("distance of driver is ---------------------------" + distence);
 			
 			if(min>distence) {
 				min=distence;
@@ -138,13 +144,12 @@ public class DriverServiceImplementation implements DriverService {
 		driver.setEmail(driversSignupRequest.getEmail());
 		driver.setName(driversSignupRequest.getName());
 		driver.setMobile(driversSignupRequest.getMobile());
+		driver.setDriverArea(driversSignupRequest.getDriverArea());
 		driver.setPassword(encodedPassword);
 		driver.setLicense(savedLicense);
 		driver.setVehicle(savedVehicle);
 		driver.setRole(UserRole.DRIVER) ;
-		
-		driver.setLatitude(driversSignupRequest.getLatitude());
-		driver.setLongitude(driversSignupRequest.getLongitude());
+		driver.setDriverArea(driver.getDriverArea());
 		
 		
 		Driver createdDriver = driverRepository.save(driver);
@@ -197,7 +202,4 @@ public class DriverServiceImplementation implements DriverService {
 		List <Ride> completedRides=driverRepository.getCompletedRides(driverId);
 		return completedRides;
 	}
-
-	
-
 }

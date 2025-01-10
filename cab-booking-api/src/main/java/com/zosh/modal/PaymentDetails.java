@@ -1,69 +1,75 @@
 package com.zosh.modal;
 
-import com.zosh.domain.PaymentStatus;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
+
+@Entity
 public class PaymentDetails {
-	
-	
-	private PaymentStatus paymentStatus;
-	private String paymentId;
-	private String razorpayPaymentLinkId;
-	private String razorpayPaymentLinkReferenceId;
-	private String razorpayPaymentLinkStatus;
-	private String razorpayPaymentId​;
-	
-	public PaymentDetails() {
-		// TODO Auto-generated constructor stub
-	}
-	
-	public String getRazorpayPaymentLinkId() {
-		return razorpayPaymentLinkId;
-	}
 
-	public void setRazorpayPaymentLinkId(String razorpayPaymentLinkId) {
-		this.razorpayPaymentLinkId = razorpayPaymentLinkId;
-	}
+    @Id
+    private Long id;
+    private String ifsc;
 
-	public String getRazorpayPaymentLinkReferenceId() {
-		return razorpayPaymentLinkReferenceId;
-	}
+    @OneToOne
 
-	public void setRazorpayPaymentLinkReferenceId(String razorpayPaymentLinkReferenceId) {
-		this.razorpayPaymentLinkReferenceId = razorpayPaymentLinkReferenceId;
-	}
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private User user;
 
-	public String getRazorpayPaymentLinkStatus() {
-		return razorpayPaymentLinkStatus;
-	}
+    private String accountholdername;
+    private String accountno;
+    private String bankname;
 
-	public void setRazorpayPaymentLinkStatus(String razorpayPaymentLinkStatus) {
-		this.razorpayPaymentLinkStatus = razorpayPaymentLinkStatus;
-	}
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
 
-	public String getRazorpayPaymentId​() {
-		return razorpayPaymentId​;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setRazorpayPaymentId​(String razorpayPaymentId​) {
-		this.razorpayPaymentId​ = razorpayPaymentId​;
-	}
+    public String getIfsc() {
+        return ifsc;
+    }
 
-	public String getPaymentId() {
-		return paymentId;
-	}
-	public void setPaymentId(String paymentId) {
-		this.paymentId = paymentId;
-	}
+    public void setIfsc(String ifsc) {
+        this.ifsc = ifsc;
+    }
 
-	public PaymentStatus getPaymentStatus() {
-		return paymentStatus;
-	}
+    public User getUser() {
+        return user;
+    }
 
-	public void setPaymentStatus(PaymentStatus paymentStatus) {
-		this.paymentStatus = paymentStatus;
-	}
-	
-	
-	
+    public void setUser(User user) {
+        this.user = user;
+    }
 
+    public String getAccountholdername() {
+        return accountholdername;
+    }
+
+    public void setAccountholdername(String accountholdername) {
+        this.accountholdername = accountholdername;
+    }
+
+    public String getAccountno() {
+        return accountno;
+    }
+
+    public void setAccountno(String accountno) {
+        this.accountno = accountno;
+    }
+
+    public String getBankname() {
+        return bankname;
+    }
+
+    public void setBankname(String bankname) {
+        this.bankname = bankname;
+    }
 }

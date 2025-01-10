@@ -10,102 +10,98 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Notification {
-	
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Integer id;
-	
-	@ManyToOne(cascade = CascadeType.ALL)
-	private User user;
-	
-	@ManyToOne(cascade = CascadeType.ALL)
-	private Driver driver;
-	
-	@JsonIgnore
-	@ManyToOne(cascade = CascadeType.ALL)
-	private Ride rid;
-	
-	private String message;
-	
-	private NotificationType type;
 
-	private LocalDateTime timestamp;
-	
-	public Notification() {
-		// TODO Auto-generated constructor stub
-	}
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Integer id;
 
-	public Notification(Integer id, User user, Driver driver, Ride rid, String message, NotificationType type,
-			LocalDateTime timestamp) {
-		super();
-		this.id = id;
-		this.user = user;
-		this.driver = driver;
-		this.rid = rid;
-		this.message = message;
-		this.type = type;
-		this.timestamp = timestamp;
-	}
+    @ManyToOne(cascade = CascadeType.ALL)
+    private User user;
 
-	public Integer getId() {
-		return id;
-	}
+    @ManyToOne(cascade = CascadeType.ALL)
+    private Driver driver;
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    @JsonIgnore
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "ride_id")  // Join column to link to Ride entity
+    private Ride ride;
 
-	public User getUser() {
-		return user;
-	}
+    private String message;
 
-	public void setUser(User user) {
-		this.user = user;
-	}
+    private NotificationType type;
 
-	public Driver getDriver() {
-		return driver;
-	}
+    private LocalDateTime timestamp;
 
-	public void setDriver(Driver driver) {
-		this.driver = driver;
-	}
+    // Default constructor
+    public Notification() {
+        // Default constructor
+    }
 
-	public Ride getRid() {
-		return rid;
-	}
+    // Getters and Setters
+    public Integer getId() {
+        return id;
+    }
 
-	public void setRid(Ride rid) {
-		this.rid = rid;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public String getMessage() {
-		return message;
-	}
+    public User getUser() {
+        return user;
+    }
 
-	public void setMessage(String message) {
-		this.message = message;
-	}
+    public void setUser(User user) {
+        this.user = user;
+    }
 
-	public NotificationType getType() {
-		return type;
-	}
+    public Driver getDriver() {
+        return driver;
+    }
 
-	public void setType(NotificationType type) {
-		this.type = type;
-	}
+    public void setDriver(Driver driver) {
+        this.driver = driver;
+    }
 
-	public LocalDateTime getTimestamp() {
-		return timestamp;
-	}
+    public Ride getRide() {
+        return ride;
+    }
 
-	public void setTimestamp(LocalDateTime timestamp) {
-		this.timestamp = timestamp;
-	}
-	
+    public void setRide(Ride ride) {
+        this.ride = ride;
+    }
 
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public NotificationType getType() {
+        return type;
+    }
+
+    public void setType(NotificationType type) {
+        this.type = type;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    @Override
+    public String toString() {
+        return "Notification [id=" + id + ", user=" + user + ", driver=" + driver + ", ride=" + ride + ", message="
+                + message + ", type=" + type + ", timestamp=" + timestamp + "]";
+    }
 }

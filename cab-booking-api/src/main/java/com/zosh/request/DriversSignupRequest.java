@@ -11,9 +11,10 @@ public class DriversSignupRequest {
 	private String email;
 	private String mobile;
 	private String password;
-	private double latitude;
-	private double longitude;
+	private String driverArea;
 	
+
+
 	@OneToOne(mappedBy = "driver")
 	private License license;
 	
@@ -24,34 +25,19 @@ public class DriversSignupRequest {
 		// TODO Auto-generated constructor stub
 	}
 
-	public DriversSignupRequest(String name, String email, String mobile, String password, double latitude,
-			double longitude, License license, Vehicle vehicle) {
+	public DriversSignupRequest(String name, String email, String mobile, String password, 
+	String driverArea, License license, Vehicle vehicle) {
 		super();
 		this.name = name;
 		this.email = email;
 		this.mobile = mobile;
 		this.password = password;
-		this.latitude = latitude;
-		this.longitude = longitude;
+		this.driverArea=driverArea;
 		this.license = license;
 		this.vehicle = vehicle;
 	}
 
-	public double getLatitude() {
-		return latitude;
-	}
-
-	public void setLatitude(double latitude) {
-		this.latitude = latitude;
-	}
-
-	public double getLongitude() {
-		return longitude;
-	}
-
-	public void setLongitude(double longitude) {
-		this.longitude = longitude;
-	}
+	
 
 	public String getName() {
 		return name;
@@ -67,6 +53,13 @@ public class DriversSignupRequest {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+	public String getDriverArea() {
+		return driverArea;
+	}
+
+	public void setDriverArea(String driverArea) {
+		this.driverArea = driverArea;
 	}
 
 	public String getMobile() {

@@ -10,10 +10,10 @@ import org.springframework.data.repository.query.Param;
 import com.zosh.modal.Ride;
 import com.zosh.modal.User;
 
-public interface UserRepository extends JpaRepository<User, Integer> {
+public interface UserRepository extends JpaRepository<User, Long> {
 
 	public User findByEmail(String email);
 	
 	@Query("SELECT R FROM Ride R where R.status=COMPLETED AND R.user.Id=:userId ORDER BY R.endTime DESC")
-	public List<Ride> getCompletedRides(@Param("userId")Integer userId);
+	public List<Ride> getCompletedRides(@Param("userId")Long userId);
 }

@@ -10,12 +10,11 @@ import com.zosh.request.DriversSignupRequest;
 public interface DriverService {
 	
 	public Driver registerDriver(DriversSignupRequest driverSignupRequest);
-	
-	public List<Driver> getAvailableDrivers(double pickupLatitude,
-			double picupLongitude,double radius, Ride ride);
+	public Driver createDriverFromRequest(DriversSignupRequest request);
+	public List<Driver> getAvailableDrivers(String pickupArea,double radius, Ride ride);
 	
 	public Driver findNearestDriver(List<Driver> availableDrivers, 
-			double picupLatitude, double picupLongitude);
+			String pickupArea);
 	
 	public Driver getReqDriverProfile(String jwt) throws DriverException;
 	

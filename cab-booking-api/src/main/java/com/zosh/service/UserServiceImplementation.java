@@ -36,7 +36,7 @@ public class UserServiceImplementation implements UserService {
 	}
 
 	@Override
-	public User findUserById(Integer userId) throws UserException {
+	public User findUserById(Long userId) throws UserException {
 		
 		Optional<User> opt=userRepository.findById(userId);
 		
@@ -86,7 +86,7 @@ public class UserServiceImplementation implements UserService {
 	}
 
 	@Override
-	public List<Ride> completedRids(Integer userId) throws UserException {
+	public List<Ride> completedRids(Long userId) throws UserException {
 		List <Ride> completedRides=userRepository.getCompletedRides(userId);
 		return completedRides;
 	}

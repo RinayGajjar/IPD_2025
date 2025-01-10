@@ -19,7 +19,16 @@ public class RideDTO {
 		private String destinationArea;
 	    private double distance;
 	    private long duration;
-	    private RideStatus status;
+		private long expectedDuration;
+	    public long getExpectedDuration() {
+			return expectedDuration;
+		}
+
+		public void setExpectedDuration(long expectedDuration) {
+			this.expectedDuration = expectedDuration;
+		}
+
+		private RideStatus status;
 	    private LocalDateTime startTime;
 	    private LocalDateTime endTime;
 	    private double fare;

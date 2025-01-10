@@ -2,7 +2,7 @@ package com.zosh.dto;
 
 public class UserDTO {
 	
-	private Integer Id;
+	private Long Id;
 	private String email;
 	private String name;
 	private String mobile;
@@ -11,7 +11,7 @@ public class UserDTO {
 		// TODO Auto-generated constructor stub
 	}
 
-	public UserDTO(Integer id, String email, String name, String mobile) {
+	public UserDTO(Long id, String email, String name, String mobile) {
 		super();
 		Id = id;
 		this.email = email;
@@ -19,11 +19,11 @@ public class UserDTO {
 		this.mobile = mobile;
 	}
 
-	public Integer getId() {
+	public Long getId() {
 		return Id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		Id = id;
 	}
 

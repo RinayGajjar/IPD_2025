@@ -17,7 +17,8 @@ public class DriverDTO {
     private String email;
     private String mobile;
     private double rating;
-    private double latitude;
+	private String driverArea;
+	private double latitude;
     private double longitude;
     private UserRole role;
     private Vehicle vehicle;
@@ -74,6 +75,14 @@ public class DriverDTO {
 
 	public void setRating(double rating) {
 		this.rating = rating;
+	}
+
+	public String getDriverArea() {
+		return driverArea;
+	}
+
+	public void setDriverArea(String driverArea) {
+		this.driverArea = driverArea;
 	}
 
 	public double getLatitude() {

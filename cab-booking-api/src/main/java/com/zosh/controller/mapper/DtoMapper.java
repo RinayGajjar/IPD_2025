@@ -18,6 +18,7 @@ public class DtoMapper {
 		
 		driverDto.setEmail(driver.getEmail());
 		driverDto.setId(driver.getId());
+		driverDto.setDriverArea(driver.getDriverArea());
 		driverDto.setLatitude(driver.getLatitude());
 		driverDto.setLongitude(driver.getLongitude());
 		driverDto.setMobile(driver.getMobile());
@@ -44,15 +45,18 @@ public class DtoMapper {
 	}
 	
 	public static RideDTO toRideDto(Ride ride) {
-		DriverDTO driverDTO=toDriverDto(ride.getDriver());
-		UserDTO userDto=toUserDto(ride.getUser());
+		// Check for null driver and user before mapping
+		DriverDTO driverDTO = (ride.getDriver() != null) ? toDriverDto(ride.getDriver()) : null;
+		UserDTO userDto = (ride.getUser() != null) ? toUserDto(ride.getUser()) : null;
 		
-		RideDTO rideDto=new RideDTO();
+		RideDTO rideDto = new RideDTO();
 		
+		// Map fields, ensuring null-safe operations
 		rideDto.setDestinationLatitude(ride.getDestinationLatitude());
 		rideDto.setDestinationLongitude(ride.getDestinationLongitude());
-		rideDto.setDistance(ride.getDistence());
+		rideDto.setDistance(ride.getDistance());
 		rideDto.setDriver(driverDTO);
+		rideDto.setExpectedDuration(ride.getExpectedDuration());
 		rideDto.setDuration(ride.getDuration());
 		rideDto.setEndTime(ride.getEndTime());
 		rideDto.setFare(ride.getFare());
@@ -64,12 +68,17 @@ public class DtoMapper {
 		rideDto.setUser(userDto);
 		rideDto.setPickupArea(ride.getPickupArea());
 		rideDto.setDestinationArea(ride.getDestinationArea());
-		rideDto.setPaymentDetails(ride.getPaymentDetails());
+		
+		// Check if payment details exist
+		// if (ride.getPaymentDetails() != null) {
+		// 	rideDto.setPaymentDetails(ride.getPaymentDetails());
+		// }
+		
+		// Set OTP, handling potential null values
 		rideDto.setOtp(ride.getOtp());
+		
 		return rideDto;
 	}
-	
 
-	
 
 }
