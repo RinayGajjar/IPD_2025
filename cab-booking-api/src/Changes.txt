@@ -1,0 +1,6 @@
+made changes in Ride from user to Set of users
+made changes in dto mapper
+made changes in RideDto 
+made changes in ride service and rideserviceimpl
+made changes in ride controller in request method
+had to comment user repo,service,controller  allocated rides,completed

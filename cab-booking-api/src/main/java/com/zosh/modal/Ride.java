@@ -2,17 +2,24 @@ package com.zosh.modal;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.zosh.ride.domain.RideStatus;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 
 @Entity
@@ -22,14 +29,18 @@ public class Ride {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")  
-    private User user;
+   
+    @ManyToMany
+    @JsonManagedReference
+    private Set<User> users = new HashSet<>();
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "driver_id")
+    @JsonBackReference
     private Driver driver;
 
     @JsonIgnore
+    @ElementCollection
     private List<Integer> declinedDrivers = new ArrayList<>();
 
     private double pickupLatitude;
@@ -70,12 +81,12 @@ public class Ride {
         this.id = id;
     }
 
-    public User getUser() {
-        return user;
+    public Set<User> getUsers() {
+        return users;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUsers(Set<User> users) {
+        this.users = users;
     }
 
     public Driver getDriver() {
@@ -200,7 +211,7 @@ public class Ride {
 
     @Override
     public String toString() {
-        return "Ride [id=" + id + ", user=" + user + ", driver=" + driver + ", pickupLatitude=" + pickupLatitude
+        return "Ride [id=" + id + ", users=" + users + ", driver=" + driver + ", pickupLatitude=" + pickupLatitude
                 + ", pickupLongitude=" + pickupLongitude + ", destinationLatitude=" + destinationLatitude
                 + ", destinationLongitude=" + destinationLongitude + ", pickupArea=" + pickupArea
                 + ", destinationArea=" + destinationArea + ", distance=" + distance + ", duration=" + duration

@@ -1,11 +1,15 @@
 package com.zosh.service;
 
+import java.util.List;
+
 import com.zosh.exception.DriverException;
 import com.zosh.exception.RideException;
+import com.zosh.modal.DistanceTime;
 import com.zosh.modal.Driver;
 import com.zosh.modal.Ride;
 import com.zosh.modal.User;
 import com.zosh.request.RideRequest;
+import com.zosh.ride.domain.RideStatus;
 
 public interface RideService {
 	
@@ -29,4 +33,10 @@ public interface RideService {
 	
 	public Ride findRideById(Integer rideId) throws RideException;
 
+	public DistanceTime getDistanceTimeBetweenDriverAndPickupArea(String driverArea, String pickupArea) throws Exception;
+
+    public Ride createOrJoinCarpoolRide(String useremail, String pickupArea, String destinationArea);
+
+	public List<Ride> findMatchingRides(String pickupArea, String destinationArea, RideStatus status);
+    public void saveRide(Ride ride);
 }

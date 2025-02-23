@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -46,64 +49,90 @@ public class DriverServiceImplementation implements DriverService {
 	@Autowired
 	private RideRepository rideRepository;
 
+	private static final Logger logger=LoggerFactory.getLogger(DriverServiceImplementation.class);
+
 	@Override
 	public Driver createDriverFromRequest(DriversSignupRequest request) {
 		// TODO Auto-generated method stub
 		Driver driver=new Driver();
 		driver.setDriverArea(request.getDriverArea());
+		logger.debug("Driver created with area: {}", request.getDriverArea());
 		return driver;
 	}
-	@Override
-	public List<Driver> getAvailableDrivers(String ride_pickupArea, double radius, Ride ride) {
-		List<Driver> allDrivers=driverRepository.findAll();
-		
-		
-		List<Driver> availableDriver=new ArrayList<>();
-		
-		
-		for(Driver driver:allDrivers) {
-			
-			if(driver.getCurrentRide()!=null && driver.getCurrentRide().getStatus()!=RideStatus.COMPLETED 
-					) {
-				
-				continue;
-			}
-			if(ride.getDeclinedDrivers().contains(driver.getId())) {
-				System.out.println("its containes");
-				continue;
-			}
+	
 
-			
-			
-			
-			double distence=distenceCalculator.calculateDistance(ride_pickupArea,driver.getDriverArea());
-			System.out.println("ride is -------" + ride_pickupArea + "driver is --------------" + driver.getDriverArea());
-			//the main problem is that if the distance of driver is >radius(5) then available driver is not added because of which it causes null problem 
-			 if(distence<=radius) {
-				availableDriver.add(driver);
-			 }
-		}
-		
-		return availableDriver;
-	}
+	@Override
+public List<Driver> getAvailableDrivers(String ride_pickupArea, double radius, Ride ride) {
+    logger.info("---------------------------- Finding Drivers Start ----------------------------");
+
+    List<Driver> allDrivers = new ArrayList<>();
+    try {
+        logger.info("Fetching all drivers from the repository...");
+        allDrivers = driverRepository.findAll();
+        logger.info("Successfully fetched {} drivers", allDrivers != null ? allDrivers.size() : 0);
+    } catch (Exception e) {
+        logger.error("Error fetching drivers from repository", e);
+        return new ArrayList<>();  // Return an empty list to avoid null issues
+    }
+
+    if (allDrivers == null || allDrivers.isEmpty()) {
+        logger.warn("No drivers found in the database.");
+        return new ArrayList<>();
+    }
+
+    List<Driver> availableDriver = new ArrayList<>();
+    logger.info("Finding available drivers for pickup area: {}", ride_pickupArea);
+
+    for (Driver driver : allDrivers) {
+        if (driver.getCurrentRide() != null && driver.getCurrentRide().getStatus() != RideStatus.COMPLETED) {
+            continue;
+        }
+        if (ride.getDeclinedDrivers().contains(driver.getId())) {
+            logger.debug("Driver {} has declined the ride before, skipping.", driver.getId());
+            continue;
+        }
+
+        double distance = distenceCalculator.calculateDistance(ride_pickupArea, driver.getDriverArea());
+        logger.debug("Driver {} distance from pickup area: {}", driver.getId(), distance);
+
+        if (distance <= radius) {
+            availableDriver.add(driver);
+            logger.info("Driver {} added to available list. Distance: {}", driver.getId(), distance);
+        } else {
+            logger.warn("Driver {} is too far away ({} km) from pickup area.", driver.getId(), distance);
+        }
+    }
+
+    if (availableDriver.isEmpty()) {
+        logger.error("No drivers found within the specified radius of {} km.", radius);
+    } else {
+        logger.info("Found {} available drivers within radius.", availableDriver.size());
+    }
+
+    logger.info("---------------------------- Finding Drivers End ----------------------------");
+    return availableDriver;
+}
 
 	@Override
 	public Driver findNearestDriver(List<Driver> availableDrivers, String ride_pickupArea) {
 		// Ride ride=new Ride();
 		double min=Double.MAX_VALUE;;
 		Driver nearestDriver = null;
-		System.out.println("avaialable drivers are "  + availableDrivers);
+		logger.debug("Finding nearest driver for pickup area: {}", ride_pickupArea);
 //		List<Driver> drivers=new ArrayList<>();
 //		double minAuto
 		
 		for(Driver driver : availableDrivers) {
-			System.out.println("ride pickup area is  ------------" +ride_pickupArea + "driver area is ---------------" + driver.getDriverArea());
 			double distence=distenceCalculator.calculateDistance(ride_pickupArea,driver.getDriverArea());
-			System.out.println("distance of driver is ---------------------------" + distence);
+			logger.debug("Driver {} distance: {}", driver.getId(), distence);
 			
 			if(min>distence) {
 				min=distence;
 				nearestDriver=driver;
+			}
+
+			if (nearestDriver == null) {
+				logger.warn("No nearest driver found.");
 			}
 		}
 		
@@ -183,10 +212,16 @@ public class DriverServiceImplementation implements DriverService {
 	}
 
 	@Override
-	public List<Ride> getAllocatedRides(Integer driverId) throws DriverException {
-		List<Ride> allocatedRides=driverRepository.getAllocatedRides(driverId);
-		return allocatedRides;
-	}
+    public Ride getAllocatedRides(Integer driverId) throws DriverException {
+    List<Ride> rides = driverRepository.getAllocatedRides(driverId);
+
+    if (rides == null || rides.isEmpty()) {
+        throw new DriverException("No allocated rides found for driverId: " + driverId);
+    }
+
+    // Return the first ride (most recent based on query order or additional logic)
+    return rides.get(0);
+}
 
 	@Override
 	public Driver findDriverById(Integer driverId) throws DriverException {
@@ -202,4 +237,16 @@ public class DriverServiceImplementation implements DriverService {
 		List <Ride> completedRides=driverRepository.getCompletedRides(driverId);
 		return completedRides;
 	}
+	@Override
+	public void updateDriverArea(String jwt, String newArea) throws DriverException {
+		String email = jwtUtil.getEmailFromToken(jwt);
+        Driver optionalDriver = driverRepository.findByEmail(email);
+        if (optionalDriver != null) {
+            Driver driver = optionalDriver;
+            driver.setDriverArea(newArea);
+            driverRepository.save(driver);
+        } else {
+            throw new DriverException("Driver not exist with id " + email);
+        }
+    }
 }

@@ -22,7 +22,8 @@ public interface UserService {
 	
 	public User findUserByToken(String token) throws UserException;
 	
-	public List<Ride> completedRids(Long userId) throws UserException;
+	// public List<Ride> completedRids(Long userId) throws UserException;
+	// public Ride getAllocatedRides(Integer userId) throws UserException;
 	
 
 }

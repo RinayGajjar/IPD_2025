@@ -42,14 +42,23 @@ public class UserController {
 		return new ResponseEntity<User>(user,HttpStatus.ACCEPTED);
 	}
 	
-	@GetMapping("/rides/completed")
-	public ResponseEntity<List<Ride>> getcompletedRidesHandler(@RequestHeader("Authorization") String jwt) throws UserException {
+	// @GetMapping("/rides/completed")
+	// public ResponseEntity<List<Ride>> getcompletedRidesHandler(@RequestHeader("Authorization") String jwt) throws UserException {
 		
-		User user = userService.getReqUserProfile(jwt);
+	// 	User user = userService.getReqUserProfile(jwt);
 		
-		List<Ride> rides=userService.completedRids(user.getId());
+	// 	List<Ride> rides=userService.completedRids(user.getId());
 		
-		return new ResponseEntity<>(rides,HttpStatus.ACCEPTED);
-	}
+	// 	return new ResponseEntity<>(rides,HttpStatus.ACCEPTED);
+	// }
+
+	// @GetMapping("/rides/allocated/{userId}")
+	// public ResponseEntity<Ride> getAllocatedRidesHandler(@PathVariable Integer userId) throws UserException{
+	// 	Ride ride=userService.getAllocatedRides(userId);
+		
+	// 	return new ResponseEntity<>(ride,HttpStatus.ACCEPTED);
+	// }
+
+	
 
 }

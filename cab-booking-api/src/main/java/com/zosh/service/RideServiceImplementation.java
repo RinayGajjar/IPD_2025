@@ -4,14 +4,21 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.zosh.config.JwtUtil;
 import com.zosh.controller.mapper.DtoMapper;
 import com.zosh.dto.DriverDTO;
 import com.zosh.exception.DriverException;
@@ -25,18 +32,25 @@ import com.zosh.modal.User;
 import com.zosh.repository.DriverRepository;
 import com.zosh.repository.NotificationRepository;
 import com.zosh.repository.RideRepository;
+import com.zosh.repository.UserRepository;
 import com.zosh.request.RideRequest;
 import com.zosh.ride.domain.NotificationType;
 import com.zosh.ride.domain.RideStatus;
 
 @Service
 public class RideServiceImplementation implements RideService {
+
+	@Autowired
+	private JwtUtil jwtUtil;
 	
 	@Autowired
 	private DriverService driverService;
 	
 	@Autowired
 	private RideRepository rideRepository;
+
+	@Autowired 
+	private UserRepository userRepository;
 	
 	@Autowired
 	private Calculaters calculaters;
@@ -49,6 +63,8 @@ public class RideServiceImplementation implements RideService {
 
 	@Autowired
 	private MapService mapService;
+
+	private static final Logger logger=LoggerFactory.getLogger(RideServiceImplementation.class);
 
 	@Override
 	public Ride requestRide(RideRequest rideRequest, User user) throws Exception   {
@@ -66,37 +82,40 @@ public class RideServiceImplementation implements RideService {
 
 		try {
 			Coordinates pickupCoordinates=mapService.getAddressCoordinates(rideRequest.getPickupArea());
+			if (pickupCoordinates == null) throw new Exception("Invalid pickup location");
 			picupLatitude=pickupCoordinates.getLat();
 			picupLongitude=pickupCoordinates.getLng();
-			System.out.println("picupLatitude-------------------------="+picupLatitude);
-			System.out.println("picupLongitude------------------------" + picupLongitude);
+			logger.debug("Pickup coordinates: lat = {}, lng = {}", picupLatitude, picupLongitude);
 		} catch (Exception e) {
+			logger.error("Unable to fetch coordinates for pickup area: {}", e.getMessage());
 			throw new Exception("Unable to fetch coordinates for pickup area------------------------------: " + e.getMessage());
 		}
 
 		try {
 			Coordinates destinationCoordinates = mapService.getAddressCoordinates(rideRequest.getDestinationArea());
+			if (destinationCoordinates == null) throw new Exception("Invalid destination location");
 			destinationLatitude=destinationCoordinates.getLat();
 			destinationLongitude=destinationCoordinates.getLng();
-			System.out.println("destinationLatitude:------------------ " + destinationLatitude);
-			System.out.println("destinationLongitude:----------------" + destinationLongitude);
+			logger.debug("Destination coordinates: lat = {}, lng = {}", destinationLatitude, destinationLongitude);
 		} catch (Exception e) {
+			logger.error("Unable to fetch coordinates for destination area: {}", e.getMessage());
 			throw new Exception("Unable to fetch coordinates for destination area: " + e.getMessage());
 		}
 
 		Ride existingRide = new Ride();
 		
 		//send here pickup area 
-		System.out.println("this is from rideservice imp-----------"+ rideRequest.getPickupArea() + "destination area is  -------"+ rideRequest.getDestinationArea());
+		logger.info("Ride request - Pickup area: {}, Destination area: {}", rideRequest.getPickupArea(), rideRequest.getDestinationArea());
 		List<Driver> availableDrivers=driverService.getAvailableDrivers(rideRequest.getPickupArea(),5, existingRide);
 		//also here 
 		Driver nearestDriver=driverService.findNearestDriver(availableDrivers,rideRequest.getPickupArea());
 		
 		if(nearestDriver==null) {
+			logger.error("No driver available for the requested pickup area.");
 			throw new Exception("Driver not available");
 		}
 		
-		System.out.println(" duration ----- before ride ");
+		logger.debug("Nearest driver: {}", nearestDriver.getId());
 		
         Ride ride = createRideRequest(user, nearestDriver, 
         		picupLatitude, picupLongitude, 
@@ -104,7 +123,7 @@ public class RideServiceImplementation implements RideService {
         		rideRequest.getPickupArea(),rideRequest.getDestinationArea()
         		,rideRequest.getExpectedDuration());
 
-        System.out.println(" duration ----- after ride ");
+				logger.debug("Ride created with ID: {}", ride.getId());
         
         // Send a notification to the driver
         Notification notification=new Notification();
@@ -118,35 +137,40 @@ public class RideServiceImplementation implements RideService {
         
 //    rideService.sendNotificationToDriver(nearestDriver, ride);
         
-        
-
-        return ride;
-        
-		
+Ride savedRide = rideRepository.save(ride);
+return savedRide;
 	}
 
 	@Override
-	public Ride createRideRequest(User user, Driver nearesDriver, double pickupLatitude, 
-			double pickupLongitude,double destinationLatitude, double destinationLongitude,
-			String pickupArea,String destinationArea,Long expectedDuration) {
-		
-		Ride ride=new Ride();
-		ride.setDriver(nearesDriver);
-		System.out.println("error due to user--------------------");
-		ride.setUser(user);
-		System.out.println("error not due to user--------------");
-		ride.setPickupLatitude(pickupLatitude);
-		ride.setPickupLongitude(pickupLongitude);
-		ride.setDestinationLatitude(destinationLatitude);
-		ride.setDestinationLongitude(destinationLongitude);
-		ride.setStatus(RideStatus.REQUESTED);
-		ride.setPickupArea(pickupArea);
-		ride.setDestinationArea(destinationArea);
-		ride.setExpectedDuration(expectedDuration);
-	
-		
-		return rideRepository.save(ride);
-	}
+public Ride createRideRequest(User user, Driver nearestDriver, double pickupLatitude, 
+        double pickupLongitude, double destinationLatitude, double destinationLongitude,
+        String pickupArea, String destinationArea, Long expectedDuration) {
+    
+    Ride ride = new Ride();
+    
+    ride.setDriver(nearestDriver);
+    logger.debug("Driver assigned to the ride: {}", nearestDriver.getId());
+
+    // Initialize users set and add the requesting user
+    Set<User> users = new HashSet<>();
+    users.add(user);
+    ride.setUsers(users);
+    logger.debug("User assigned to the ride: {}", user.getId());
+
+    ride.setPickupLatitude(pickupLatitude);
+    ride.setPickupLongitude(pickupLongitude);
+    ride.setDestinationLatitude(destinationLatitude);
+    ride.setDestinationLongitude(destinationLongitude);
+    ride.setStatus(RideStatus.REQUESTED);
+    ride.setPickupArea(pickupArea);
+    ride.setDestinationArea(destinationArea);
+    ride.setExpectedDuration(expectedDuration);
+
+    Ride savedRide = rideRepository.save(ride);
+    logger.info("Ride created and saved with ID: {}", savedRide.getId());
+
+    return savedRide;
+}
 
 
 
@@ -172,7 +196,7 @@ public class RideServiceImplementation implements RideService {
 		
 		Notification notification=new Notification();
 		
-        notification.setUser(ride.getUser());;
+        //notification.setUser(ride.getUser());;
         notification.setMessage("Your Ride Is Conformed Driver Will Reach Soon At Your Pickup Location");
         notification.setRide(ride);
         notification.setTimestamp(LocalDateTime.now());
@@ -196,7 +220,7 @@ public class RideServiceImplementation implements RideService {
 	
 		Notification notification=new Notification();
 		
-        notification.setUser(ride.getUser());;
+        //notification.setUser(ride.getUser());;
         notification.setMessage("Driver Reached At Your Pickup Location");
         notification.setRide(ride);
         notification.setTimestamp(LocalDateTime.now());
@@ -275,7 +299,7 @@ try {
 		
 		Notification notification=new Notification();
 		
-        notification.setUser(ride.getUser());;
+       // notification.setUser(ride.getUser());;
         notification.setMessage("Driver Reached At Your Pickup Location");
         notification.setRide(ride);
         notification.setTimestamp(LocalDateTime.now());
@@ -324,5 +348,64 @@ try {
 		rideRepository.save(ride);
 		
 	}
+	@Override
+	public DistanceTime getDistanceTimeBetweenDriverAndPickupArea(String driverArea, String pickupArea) throws Exception {
+        return mapService.getDistanceTime(driverArea, pickupArea);
+    }
+
+
+	@Transactional
+    public Ride createOrJoinCarpoolRide(String useremail, String pickupArea, String destinationArea) {
+    final double RADIUS = 5.0; // Static radius of 5 km
+
+    String email = jwtUtil.getEmailFromToken(useremail);
+
+    // Step 1: Fetch User by Email
+    User user = userRepository.findByEmail(email);
+    if (user == null) {
+        throw new RuntimeException("User not found with email: " + email);
+    }
+
+    // Step 2: Find if an existing ride has space
+    List<Ride> matchingRides = rideRepository.findMatchingRides(pickupArea, destinationArea,RideStatus.REQUESTED);
+    for (Ride ride : matchingRides) {
+        if (ride.getUsers().size() < 3) {  // Ensure ride isn't full
+            ride.getUsers().add(user);
+            rideRepository.save(ride);
+            return ride;
+        }
+    }
+
+    // Step 3: Find available drivers within the static 5 km radius
+    List<Driver> availableDrivers = driverService.getAvailableDrivers(pickupArea, RADIUS, new Ride());
+    if (availableDrivers.isEmpty()) {
+        throw new RuntimeException("No available drivers within " + RADIUS + " km radius.");
+    }
+
+    // Step 4: Select the nearest driver
+    Driver nearestDriver = driverService.findNearestDriver(availableDrivers, pickupArea);
+    if (nearestDriver == null) {
+        throw new RuntimeException("Could not find the nearest driver.");
+    }
+
+    // Step 5: Create a new ride
+    Ride newRide = new Ride();
+    newRide.setUsers(new HashSet<>(Set.of(user)));  // Add first user
+    newRide.setDriver(nearestDriver);
+    newRide.setPickupArea(pickupArea);
+    newRide.setDestinationArea(destinationArea);
+    newRide.setStatus(RideStatus.REQUESTED);
+
+    return rideRepository.save(newRide);
+  }
+    @Override
+    public List<Ride> findMatchingRides(String pickupArea, String destinationArea, RideStatus status) {
+        return rideRepository.findMatchingRides(pickupArea, destinationArea, status);
+    }
+
+  @Override
+  public void saveRide(Ride ride) {
+	rideRepository.save(ride);
+  }
 
 }

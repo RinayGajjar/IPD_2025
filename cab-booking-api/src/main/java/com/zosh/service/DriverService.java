@@ -12,7 +12,7 @@ public interface DriverService {
 	public Driver registerDriver(DriversSignupRequest driverSignupRequest);
 	public Driver createDriverFromRequest(DriversSignupRequest request);
 	public List<Driver> getAvailableDrivers(String pickupArea,double radius, Ride ride);
-	
+	void updateDriverArea(String jwt,String newArea) throws DriverException;
 	public Driver findNearestDriver(List<Driver> availableDrivers, 
 			String pickupArea);
 	
@@ -20,7 +20,7 @@ public interface DriverService {
 	
 	public Ride getDriversCurrentRide(Integer driverId) throws DriverException;
 	
-	public List<Ride> getAllocatedRides(Integer driverId) throws DriverException;
+	public Ride getAllocatedRides(Integer driverId) throws DriverException;
 	
 	public Driver findDriverById(Integer driverId) throws DriverException;
 	

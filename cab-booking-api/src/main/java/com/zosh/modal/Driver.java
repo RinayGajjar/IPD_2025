@@ -3,6 +3,7 @@ package com.zosh.modal;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.zosh.request.DriversSignupRequest;
 import com.zosh.ride.domain.UserRole;
 
@@ -43,8 +44,8 @@ public class Driver {
     @OneToOne(mappedBy = "driver", cascade = CascadeType.ALL)
     private License license;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference  
+    @OneToMany(mappedBy = "driver", cascade = CascadeType.PERSIST, orphanRemoval = false)
     private List<Ride> rides;
 
     @OneToOne(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)

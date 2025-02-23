@@ -2,6 +2,7 @@ package com.zosh.dto;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.zosh.modal.PaymentDetails;
 import com.zosh.ride.domain.RideStatus;
@@ -9,7 +10,7 @@ import com.zosh.ride.domain.RideStatus;
 public class RideDTO {
 	
 	    private Integer id;
-	    private UserDTO user;
+	    private List<UserDTO> users;
 	    private DriverDTO driver;
 	    private double pickupLatitude;
 	    private double pickupLongitude;
@@ -79,12 +80,12 @@ public class RideDTO {
 			this.id = id;
 		}
 
-		public UserDTO getUser() {
-			return user;
+		public List<UserDTO> getUsers() {  // <-- Update getter to return list
+			return users;
 		}
 
-		public void setUser(UserDTO user) {
-			this.user = user;
+		public void setUsers(List<UserDTO> users) {  // <-- Update setter to accept list
+			this.users = users;
 		}
 
 		public DriverDTO getDriver() {
