@@ -12,12 +12,14 @@ import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
 import com.zosh.modal.SMSMessage;
 
+import lombok.Value;
+
 @RestController
 @RequestMapping("/api/sms")
 public class SMSController {
-	
-	private String ACCOUNT_SID="AC9e9fab8b05cb0adbf4bd71371819a053";
-	private String AUTH_TOKEN="05673b8753738220693cf4aae51e9ea2";
+
+	private String ACCOUNT_SID="";
+	private String AUTH_TOKEN="";
 	
 	@PostMapping("/send")
 	public ResponseEntity<SMSMessage>sendSMS(@RequestBody SMSMessage smsReq){
@@ -25,7 +27,7 @@ public class SMSController {
         Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
         Message message = Message.creator(
                 new com.twilio.type.PhoneNumber(smsReq.getMobile()),
-                new com.twilio.type.PhoneNumber("+13156418395"),
+                new com.twilio.type.PhoneNumber(""),
                 smsReq.getMessage())
             .create();
         SMSMessage res=new SMSMessage();
