@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "490051156106",
+    "project_id": "ipdapp",
+    "storage_bucket": "ipdapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:490051156106:android:f4109d580a0d909be45573",
+        "android_client_info": {
+          "package_name": "com.example.ipdapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC026cVi3lcXCiV7x2r4Xk9_IZQaut4n0I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

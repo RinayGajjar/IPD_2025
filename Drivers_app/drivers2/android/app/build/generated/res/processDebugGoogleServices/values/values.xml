@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="firebase_database_url" translatable="false">https://ipdapp-default-rtdb.firebaseio.com</string>
+    <string name="gcm_defaultSenderId" translatable="false">490051156106</string>
+    <string name="google_api_key" translatable="false">AIzaSyC026cVi3lcXCiV7x2r4Xk9_IZQaut4n0I</string>
+    <string name="google_app_id" translatable="false">1:490051156106:android:c20f1e73e2cc571ee45573</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyC026cVi3lcXCiV7x2r4Xk9_IZQaut4n0I</string>
+    <string name="google_storage_bucket" translatable="false">ipdapp.firebasestorage.app</string>
+    <string name="project_id" translatable="false">ipdapp</string>
+</resources>
